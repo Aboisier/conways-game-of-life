@@ -7,9 +7,10 @@ INACTIVE_COLOR = '#fafafa'
 
 var g = []
 
-isMouseDown = false
-firstClickState = 0
-updateIntervalId = null
+isMouseDown      = false
+firstClickState  = 0
+updateSpeed      = 200
+stopUpdate       = false
 
 // Event handlers
 handle_mousedown = function(e) {
@@ -31,8 +32,8 @@ handle_move = function(e) {
 // Initialises the grid, the buttons and the event handlers
 init = function() {
     // The buttons
-    $('#start').click(function() { $('#start').addClass('disabled'); $('#stop').removeClass('disabled'); updateIntervalId = setInterval(update, 200) })
-    $('#stop').click(function() { $('#stop').addClass('disabled'); $('#start').removeClass('disabled'); window.clearInterval(updateIntervalId) })
+    $('#start').click(function() { $('#start').addClass('disabled'); $('#stop').removeClass('disabled'); setTimeout(update, updateSpeed); stopUpdate = false })
+    $('#stop').click(function() { $('#stop').addClass('disabled'); $('#start').removeClass('disabled'); stopUpdate = true })
 
     // The empty grid
     for(i = 0; i < Y; ++i) {
@@ -49,7 +50,7 @@ init = function() {
     c.onmousemove = handle_move
 
     // Starts to draw
-    setInterval(draw, 1000/15)
+    drawIntervalId = setInterval(draw, 1000/50)
 }
 
 // Draws the grid to the screen
@@ -77,6 +78,11 @@ draw = function() {
 // neighbors or more dies.  A cell with 2 or 3 neighbors lives. An empty cell with
 // 3 neighbors spawns an alive cell.
 update = function() {
+    // Updates the speed interval
+    if(!stopUpdate) {
+        setTimeout(update, $('#speed').prop('max') - $('#speed').val())
+    }
+
     var updated_g = []
     for(i = 0; i < g.length; ++i) {
         line = []
